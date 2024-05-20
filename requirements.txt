@@ -1,0 +1,17 @@
+certifi==2024.2.2
+charset-normalizer==3.3.2
+colorama==0.4.6
+idna==3.7
+licensing==0.46
+markdown-it-py==3.0.0
+mdurl==0.1.2
+pyaes==1.6.1
+pyasn1==0.6.0
+Pygments==2.18.0
+Pyrogram==2.0.106
+PySocks==1.7.1
+requests==2.31.0
+rich==13.7.1
+rsa==4.9
+Telethon==1.35.0
+urllib3==2.2.1
