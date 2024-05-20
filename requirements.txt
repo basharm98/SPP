@@ -16,3 +16,4 @@ rich==13.7.1
 rsa==4.9
 Telethon==1.35.0
 urllib3==2.2.1
+Kvsqlite==0.2.1
