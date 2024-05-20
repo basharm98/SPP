@@ -49,8 +49,8 @@ except:
 if not os.path.isdir('database'):
     os.mkdir('database')
 
-API_ID = "22256614"
-API_HASH = "4f9f53e287de541cf0ed81e12a68fa3b"
+API_ID = "27188054"
+API_HASH = "03cf971d70a86171fffa0eb22227849c"
 admin = -6556354444
 
 # Replace with your bot token
