@@ -2,8 +2,15 @@ import requests,telebot
 import json
 import time
 
-tokenBot = input(' 7075082041:AAFo7fKTEgkD7-bQgmjbcmIH-Af_fjeKrmY ')
-
+bot = telebot.TeleBot('7075082041:AAFo7fKTEgkD7-bQgmjbcmIH-Af_fjeKrmY')
+#@PY_87
+print(' Go Bot /Start ')
+@bot.message_handler(commands=['start'])
+def message1(message):
+    id1 = str(message.from_user.id)
+    #@PY_87
+    #@PY_87
+    
 run = telebot.TeleBot(tokenBot)
 @run.message_handler(commands = ['start'])
 def Start(message):
