@@ -2,7 +2,7 @@ import requests,telebot
 import json
 import time
 
-tokenBot = input(' 6995501333:AAG29tC7PpoFq7l6a-B1SvY3jMRILMmGaos ')
+tokenBot = input(' 7075082041:AAFo7fKTEgkD7-bQgmjbcmIH-Af_fjeKrmY ')
 
 run = telebot.TeleBot(tokenBot)
 @run.message_handler(commands = ['start'])
