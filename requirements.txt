@@ -10,12 +10,9 @@ pyasn1==0.6.0
 Pygments==2.18.0
 Pyrogram==2.0.106
 PySocks==1.7.1
+pyTelegramBotAPI==4.18.1
 requests==2.31.0
 rich==13.7.1
 rsa==4.9
 Telethon==1.35.0
 urllib3==2.2.1
-telebot
-bs4
-BeautifulSoup
-requests,os
