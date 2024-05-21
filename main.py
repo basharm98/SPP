@@ -12,7 +12,7 @@ r = redis.Redis(
 
 api_id = 13296661
 api_hash = "44d7de0b99917321d0db5d1572623208"
-token = "7163419745:AAHGorupKF_O5tfznlPCEyAwLS7nTkc_AZ4"
+token = "7011787964:AAGtz2OGxQepIjt-DcoH5VPgJZBk09zxaBw"
 bot_id = token.split(':')[0]
 bot = Client("Azan_bot",api_id=api_id , api_hash=api_hash ,bot_token=token,in_memory=False)
 
