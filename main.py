@@ -1,4 +1,4 @@
-Dev : @FPFFG 
+
 from pyrogram import Client,filters,enums,idle
 import redis ,requests,pytz,asyncio,threading
 from datetime import datetime, timedelta
