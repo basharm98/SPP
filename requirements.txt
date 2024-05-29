@@ -2,6 +2,7 @@ certifi==2024.2.2
 charset-normalizer==3.3.2
 colorama==0.4.6
 idna==3.7
+Kvsqlite==0.2.1
 licensing==0.46
 markdown-it-py==3.0.0
 mdurl==0.1.2
@@ -16,4 +17,4 @@ rich==13.7.1
 rsa==4.9
 Telethon==1.35.0
 urllib3==2.2.1
-Kvsqlite==0.2.1
+BeautifulSoup
