@@ -1,86 +1,176 @@
+import os
+import requests
+from bs4 import BeautifulSoup
+import telebot
+from telebot import types
+import random
+import uuid
+import re
+import pycountry
+import time
+from faker import Faker
+from Strip import Payment
+faker = Faker()
+token = "6459733156:AAHIUpXsNm-gMX2CGCb3Mr185fFHIlkhx2U" #توكنك
+bot = telebot.TeleBot(token, parse_mode="HTML")
 
-from pyrogram import Client,filters,enums,idle
-import redis ,requests,pytz,asyncio,threading
-from datetime import datetime, timedelta
-import time as T
-r = redis.Redis(
-    host="127.0.0.1",
-    port=6379,
-    charset="utf-8",
-    decode_responses=True
-    )
+@bot.callback_query_handler(func=lambda call: call.data == 'stop')
+def menu_callback(call):
+    os._exit(0)
 
-api_id = 13296661
-api_hash = "44d7de0b99917321d0db5d1572623208"
-token = "7011787964:AAGtz2OGxQepIjt-DcoH5VPgJZBk09zxaBw"
-bot_id = token.split(':')[0]
-bot = Client("Azan_bot",api_id=api_id , api_hash=api_hash ,bot_token=token,in_memory=False)
+@bot.message_handler(commands=["start"])
+def start(message):
+    bot.reply_to(message, "<strong>Send the Combo TXT File \n ارسل ملف الكومبو</strong>")
 
-async def Admin(msg) :
-   admins = [6556354444]
-   async for m in bot.get_chat_members(msg.chat.id, filter=enums.ChatMembersFilter.ADMINISTRATORS):
-      admins.append(m.user.id)
-   if (msg.from_user.id in admins) :
-      return True
-   else : 
-      return False 
+@bot.message_handler(content_types=["document"])
+def main(message):
+    ch = 0
+    live = 0
+    dd = 0
+    koko = bot.reply_to(message, "CHECKING STARTED BY MAHOS ✅...⌛").message_id
+    file_info = bot.get_file(message.document.file_id)
+    ee = bot.download_file(file_info.file_path)
 
-cairo_timezone = pytz.timezone('Africa/Cairo')
-api_url = 'http://api.aladhan.com/v1/timingsByCity'
+    with open("combo.txt", "wb") as w:
+        w.write(ee)
 
-parameters = {
-    'city': 'Cairo',
-    'country': 'Egypt',
-}
-
-def get_prayer_times():
     try:
-        data = requests.get(api_url, params=parameters).json()
-        prayer_times = data['data']['timings']
-        prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']
-        return {prayer: datetime.strptime(prayer_times[prayer], '%H:%M') for prayer in prayers}
+        with open("combo.txt", 'r') as file:
+            lino = file.readlines()
+            total = len(lino)
+
+            for P in lino:
+                try:
+                    start_time = time.time()
+                    res = Payment(P)
+                    print(res)
+                except Exception as e:
+                    print(e)
+                    continue
+
+                try:
+                    if any(keyword in res for keyword in ["Your card has insufficient funds", "insufficient funds", "Payment success", "Thank you for your support.", "insufficient_funds", "card has insufficient funds", "successfully", "Your card does not support this type of purchase.", "payment-successfully"]):
+                        ch += 1
+                        stay = 'CHARGED ✅'
+                        try:
+                            kill = res.get('message', "")
+                        except:
+                            kill = ""
+                        infobin(P, stay, kill, start_time, message)
+                    elif any(keyword in res for keyword in ["Your card's security code is incorrect.", "security code is invalid", "incorrect_cvc", "security code is incorrect", "Your card zip code is incorrect.", "card's security code is incorrect"]):
+                        live += 1
+                        stay = 'CCN,CVV ♻️'
+                        try:
+                            kill = res.get('message', "")
+                        except:
+                            kill = ""
+                        infobin(P, stay, kill, start_time, message)
+                        
+                    elif any(keyword in res for keyword in ["Your card was declined.", "Your card has expired", "risk_threshold", "Error Processing Payment", "Your card number is incorrect.", "Invalid or Missing Payment Information - Please Reload and Try Again"]):
+                        dd += 1
+                        stay = 'DEAD ❌'
+                        try:
+                            kill = res.get('message', "")
+                        except:                            
+                            kill = ""
+                    else:
+                        dd += 1
+                        stay = 'DEAD ❌'
+                        try:
+                            kill = res.get('message', "")
+                        except:                            
+                            kill = ""
+                except Exception as e:
+                    print(e)
+                    dd += 1
+
+                mes = types.InlineKeyboardMarkup(row_width=1)
+                cm1 = types.InlineKeyboardButton(f"• {P} •", callback_data='u8')
+                status = types.InlineKeyboardButton(f"• 𝗦𝗧𝗔𝗧𝗨𝗦 ➜ {kill} •", callback_data='u8')
+                cm3 = types.InlineKeyboardButton(f"• 𝗖𝗛𝗔𝗥𝗚𝗘 ✅ ➜ [ {ch} ] •", callback_data='x')
+                cm4 = types.InlineKeyboardButton(f"• 𝗔𝗣𝗣𝗥𝗢𝗩𝗘𝗗 ✅ ➜ [ {live} ] •", callback_data='x')
+                cm5 = types.InlineKeyboardButton(f"• 𝗗𝗘𝗖𝗟𝗜𝗡𝗘𝗗 ❌ ➜ [ {dd} ] •", callback_data='x')
+                cm6 = types.InlineKeyboardButton(f"• 𝗧𝗢𝗧𝗔𝗟 👻 ➜ [ {total} ] •", callback_data='x')
+                stop = types.InlineKeyboardButton(f"[ 𝐒𝐓𝐎𝐏 ]", callback_data='stop')
+                mes.add(cm1, status, cm3, cm4, cm5, cm6, stop)
+                bot.edit_message_text(chat_id=message.chat.id, message_id=koko,
+                                      text='''WAITING MONEY ➜ @maho_s9 ''', reply_markup=mes)
+
     except Exception as e:
-        print(f"Error retrieving prayer times: {e}")
-        return None
+        print(e)
 
-async def send_prayer_notification(prayer, chats):
-    prayer = prayer.replace('Fajr','الفجر').replace('Dhuhr','الظهر').replace('Asr','العصر').replace('Maghrib','المغرب').replace('Isha','العشاء')
-    message = f'حان الآن موعد أذان {prayer} حسب التوقيت المحلي لمدينة القاهرة'
-    for chat in chats:
-        await bot.send_message(chat, message)
+def infobin(P, stay, kill, start_time, message):
+    bin_number = P[:6]
+    url = "https://bins.su"
+    payload = f"action=searchbins&bins={bin_number}&bank=&country="
+    headers = {
+        'User-Agent': "Mozilla/5.0 (Linux; Android 10; ART-L29N; HMSCore 6.13.0.321) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.88 HuaweiBrowser/14.0.5.303 Mobile Safari/537.36",
+        'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+        'Content-Type': "application/x-www-form-urlencoded",
+        'Cache-Control': "max-age=0",
+        'sec-ch-ua': "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"99\", \"HuaweiBrowser\";v=\"99\"",
+        'sec-ch-ua-mobile': "?1",
+        'sec-ch-ua-platform': "\"Android\"",
+        'Upgrade-Insecure-Requests': "1",
+        'origin': "https://bins.su",
+        'Sec-Fetch-Site': "same-origin",
+        'Sec-Fetch-Mode': "navigate",
+        'Sec-Fetch-User': "?1",
+        'Sec-Fetch-Dest': "document",
+        'Referer': "https://bins.su/",
+        'Accept-Language': "ar-YE,ar;q=0.9,en-YE;q=0.8,en-US;q=0.7,en;q=0.6",
+    }
 
-def Azann():
-    last_update = None
-    while True:
-        current_time = datetime.now()
-        if last_update is None or current_time.date() > last_update.date():
-            prayer_times = get_prayer_times()
-            if prayer_times:
-                last_update = current_time
-        chats = r.smembers(f'{bot_id}:azan_chats')
-        if chats:
-            for prayer, time in prayer_times.items():
-                if current_time.strftime('%H:%M') == time.strftime('%H:%M'):
-                    asyncio.run(send_prayer_notification(prayer, chats))
-        T.sleep(50)
+    api = requests.post(url, data=payload, headers=headers)
+    res = re.search(r'<div id="result">(.+?)</div>', api.text, re.DOTALL)
 
-@bot.on_message(filters.command('تفعيل الاذان$','')&filters.group)
-async def azan_on(c,msg):
-    if not await Admin(msg) :
-        return await msg.reply('• مرحبا {}\n• هذا الامر يخص مشرفين الجروب فقط',format(msg.from_user.mention))
-    r.sadd(f'{bot_id}:azan_chats',msg.chat.id)
-    await msg.reply('• مرحبا {}\n• تم تفعيل الاذان'.format(msg.from_user.mention))
+    if res:
+        bins = re.findall(r'<tr><td>(\d+)</td><td>([A-Z]{2})</td><td>(\w+)</td><td>(\w+)</td><td>(\w+)</td><td>(.+?)</td></tr>', res.group(1))
+        if bins:
+            bin_number, country_code, vendor, card_type, level, bank = bins[0]
+        else:
+            bin_number, country_code, vendor, card_type, level, bank = "", "", "", "", "", ""
+    else:
+        bin_number, country_code, vendor, card_type, level, bank = "", "", "", "", "", ""
 
-@bot.on_message(filters.command('تعطيل الاذان$','')&filters.group)
-async def azan_off(c,msg):
-    if not await Admin(msg) :
-        return await msg.reply('• مرحبا {}\n• هذا الامر يخص مشرفين الجروب فقط',format(msg.from_user.mention))
-    r.srem(f'{bot_id}:azan_chats',msg.chat.id)
-    await msg.reply('• مرحبا {}\n• تم تعطيل الاذان'.format(msg.from_user.mention))
+    if len(country_code) == 2 and country_code.isalpha():
+        country_code = country_code.upper()
+        flag_offset = 127397
+        flag = ''.join(chr(ord(char) + flag_offset) for char in country_code)
+    else:
+        flag = ""
 
+    try:
+        country = pycountry.countries.get(alpha_2=country_code)
+        country_name = country.name if country else ""
+    except:
+        country_name = ""
 
-bot.start()
-print('\nBot started\nDev : @FPFFG')
-Azan_thread = threading.Thread(target=Azann)
-Azan_thread.start()
-idle()
+    end_time = time.time()
+    duration = int(end_time - start_time)
+
+    msg = f"""
+𝐒𝐭𝐫𝐢𝐩 𝐂𝐡𝐫𝐚𝐠𝐞 ⇾ 💱
+𝐂𝐚𝐫𝐝 ⇾ {P}
+𝐑𝐞𝐬𝐩𝐨𝐧𝐬𝐞 ⇾ {kill}
+𝐌𝐚𝐬𝐬𝐚𝐠𝐞 ⇾ {stay}
+━━━━━━━━━━━━━━━━━
+- 𝗕𝗜𝗡 ⇾ {bin_number}
+- 𝗜𝗻𝗳𝗼 ⇾ {card_type} - {level}
+- 𝐈𝐬𝐬𝐮𝐞𝐫 ⇾ {bank}
+- 𝐂𝐨𝐮𝐧𝐭𝐫𝐲 ⇾ {country_name} {flag}
+- 𝐎𝐓𝐇𝐄𝐑 ⇾ {vendor}
+- 𝐓𝐢𝐦𝐞⇾ {duration}s
+━━━━━━━━━━━━━━━━━
+◆ 𝐁𝐘: @maho_s9
+    """
+
+    bot.reply_to(message, msg)
+
+print('Done')
+while True:
+    try:
+        bot.infinity_polling()
+    except Exception as e:
+        print(e)
+        pass
