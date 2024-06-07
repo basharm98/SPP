@@ -1,40 +1,59 @@
-from pyrogram import Client
-import pyrogram
-import requests
-from pyrogram import filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+import telebot
 
-api_id = 25829176  # app id الخاص بك.
-api_hash = "160b2bf653ee7dd974bd6d09a7968cd1"  # app hash
-token="7298923155:AAEbILv5NVeQjmgmei_ldTIqWznk_tuVnIk"
-# Create a new bot session
-app = Client("gmm", api_id, api_hash, bot_token=token)
-
-# Add your bot's logic here
-@app.on_chat_member_updated()
-def handle_message(lient, update):
-    if update.old_chat_member:
-        user_id = update.from_user.id
-        chat_id = update.chat.id
-        url = f"https://api.telegram.org/bot{token}/kickChatMember"
-        params = {
-         "chat_id": chat_id,
-         "user_id": user_id
-         }
-
-        response = requests.get(url, params=params)
-@app.on_message(filters.command("start"))
-def start(client, message):
-    reply_markup = InlineKeyboardMarkup([
-        [InlineKeyboardButton("BSHAR", url="https://t.me/R_O_L_I_X_0")],
-        [InlineKeyboardButton("قناة البوت", url="https://t.me/R_O_L_I_X_5")]
-    ])
-    message.reply_text(
-        "اهلين فيك في بوت حبيب المغادرين من القنوات 🦋\n\n"
-        "كل ماعليك فعله اضافة البوت ادمن في القناه وسيتم التفعيل تلقائيا وسيتم حظر اي شخص غادر من قناتك ♡",
-        reply_markup=reply_markup
-    )
+bot = telebot.TeleBot("7232595306:AAEzFZm7s2zbKFzoRmSnWC0VSoVMmlWl7dk")
 
 
+play_song_button = telebot.types.InlineKeyboardButton('استماع لأغنية', callback_data='play_song')
 
-app.run()
+
+next_button = telebot.types.InlineKeyboardButton('التالي', callback_data='next')
+
+
+main_keyboard = telebot.types.InlineKeyboardMarkup()
+main_keyboard.add(play_song_button)
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_query(call):
+    if call.data == 'add_song':
+        if call.message.chat.id == 7246248054:
+            bot.send_message(call.message.chat.id, "يرجى إرسال الأغنية التي تريد إضافتها.")
+        else:
+            bot.send_message(call.message.chat.id, "ليس لديك الصلاحية لإضافة أغاني.", reply_markup=main_keyboard)
+    elif call.data == 'play_song':
+        keyboard = telebot.types.InlineKeyboardMarkup()
+        keyboard.add(next_button)
+        audio = open('song.mp3', 'rb')
+        bot.send_chat_action(call.message.chat.id, 'upload_audio')
+        bot.send_audio(call.message.chat.id, audio, reply_markup=keyboard)
+    elif call.data == 'next':
+        audio = open('song2.mp3', 'rb')
+        bot.send_chat_action(call.message.chat.id, 'upload_audio')
+        bot.edit_message_media(media=telebot.types.InputMediaAudio(audio), chat_id=call.message.chat.id, message_id=call.message.message_id, reply_markup=main_keyboard)
+
+@bot.message_handler(content_types=['audio'])
+def handle_audio(message):
+    if message.from_user.id == 7246248054:
+        file_info = bot.get_file(message.audio.file_id)
+        downloaded_file = bot.download_file(file_info.file_path)
+        with open('song.mp3', 'wb') as new_file:
+            new_file.write(downloaded_file)
+        bot.send_message(message.chat.id, "تم إضافة الأغنية بنجاح!", reply_markup=main_keyboard)
+    else:
+        bot.send_message(message.chat.id, "ليس لديك الصلاحية لإضافة أغاني.", reply_markup=main_keyboard)
+
+@bot.message_handler(func=lambda message: True)
+def handle_all_messages(message):
+ 
+    developer_keyboard = telebot.types.InlineKeyboardMarkup()
+    add_song_button = telebot.types.InlineKeyboardButton('إضافة أغنية', callback_data='add_song')
+    developer_keyboard.add(add_song_button, play_song_button)
+
+    if message.from_user.id == 7246248054:
+        bot.send_message(message.chat.id, "مرحباً بك في بوت الأغاني! يرجى استخدام الأزرار للاستماع للأغاني.", reply_markup=developer_keyboard)
+    else:
+        bot.send_message(message.chat.id, "مرحباً بك في بوت الأغاني! يرجى استخدم الأزرار للاستماع للأغاني.", reply_markup=main_keyboard)
+
+
+
+
+bot.polling()
