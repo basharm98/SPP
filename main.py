@@ -26,8 +26,8 @@ def handle_message(lient, update):
 @app.on_message(filters.command("start"))
 def start(client, message):
     reply_markup = InlineKeyboardMarkup([
-        [InlineKeyboardButton("hms", url="https://t.me/hms_01")],
-        [InlineKeyboardButton("قناة البوت", url="https://t.me/botatiiii")]
+        [InlineKeyboardButton("BSHAR", url="https://t.me/R_O_L_I_X_0")],
+        [InlineKeyboardButton("قناة البوت", url="https://t.me/R_O_L_I_X_5")]
     ])
     message.reply_text(
         "اهلين فيك في بوت حبيب المغادرين من القنوات 🦋\n\n"
