@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 stopuser = {}
 token = '7426457767:AAHmLpK8k4JZdfGMPtHhZ4d8ubMiMLpK6lQ'
 bot=telebot.TeleBot(token,parse_mode="HTML")
-admin=#ايدي الادمن بدون علامات تنصيص
+admin=7246248054
 command_usage = {}
 def reset_command_usage():
 	for user_id in command_usage:
